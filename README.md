@@ -1,2 +1,2 @@
-*SkillsForAll
-**practice labs
+#SkillsForAll
+##practice labs
