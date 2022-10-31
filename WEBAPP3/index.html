@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="tailwind.css"> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"> -->
+    <title>ZU - Panel de Control</title>
+</head>
+<body>
+    <header class="text-yellow-100 body-font bg-black">
+        <div class="container mx-auto flex flex-wrap p-2 flex-col md:flex-row items-center">
+            <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+                <img src="assets/logo.svg" alt="ZU LOGO" class="ml-3 text-xl max-h-20 xl:max-h-32">
+            </a>
+            <nav class="md:ml-auto md:mr-auto flex flex-wrap items-center text-lg justify-center">
+                <a class="px-3 hover:text-gray-900">Entrega</a>
+                <a class="px-3 hover:text-gray-900">Recogida</a>
+                <a class="px-3 hover:text-gray-900">Carga</a>
+                <a class="hidden md:block px-3 hover:text-gray-900">Calculadora</a>
+            </nav>
+            <p class="hidden lg:inline-flex items-center border-0 py-1 px-3 text-xl mt-4 md:mt-0">PANEL DE CONTROL</p>
+            </div>
+        </header>
+    <main>
+        <section class="text-gray-600 body-font bg">
+            <div class="container px-5 py-5 mx-auto">
+                <div class="flex flex-col text-center w-full mb-2">
+                    <h1 class="sm:text-4xl text-3xl font-medium title-font text-gray-900">Entregas</h1>
+                </div>
+                <div class=" w-full mx-auto overflow-auto">
+                    <table class="table-auto w-full text-center whitespace-no-wrap">
+                    <thead >
+                        <tr class="bg-gray-100 title-font tracking-wider text-sm text-gray-900">
+                        <th class="px-4 py-3 font-medium rounded-tl rounded-bl">Factura</th>
+                        <th class="px-4 py-3 font-medium">Nombre</th>
+                        <th class="px-4 py-3 font-medium">Hora</th>
+                        <th class="px-4 py-3 font-medium hidden lg:table-cell">Abonado</th>
+                        <th class="px-4 py-3 font-medium">Pendiente</th>
+                        <th class="px-4 py-3 font-medium hidden lg:table-cell">Total</th>
+                        <th class="w-10 font-medium rounded-tr rounded-br"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-md md:text-2xl">
+                        <tr>
+                        <td class="py-3">19876</td>
+                        <td class="py-3">Maria Perez Del Castillo</td>
+                        <td class="py-3">8:00 am</td>
+                        <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="bg-green-300 rounded-full">$60.000</div></td>
+                        <td class="py-3 text-gray-900 w-36"><div class="bg-red-300 rounded-full">$40.000</div></td>
+                        <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="bg-orange-300 rounded-full">$100.000</div></td>
+                        <td class="w-10 text-center">
+                            <input name="plan" type="radio">
+                        </td>
+                        </tr>
+                        
+                    </tbody>
+                    </table>
+                </div>
+                <div class="flex pl-4 mt-4 xl:w-2/3 w-full mx-auto">
+                    <button class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Button</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+
+    </footer>
+</body>
+<script src="script.js"></script>
+</html>
