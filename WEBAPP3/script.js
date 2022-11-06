@@ -16,7 +16,7 @@ async function getInvoices(startDate,finishDate,index) {
     return(objectWithListOfInvoices);
     }
 
-async function getAll(startDate,finishDate) {
+async function getAll(startDate,finishDate,typeOfQuery) {
     let index = 0;
     let invoices = [];
     do {
@@ -26,43 +26,97 @@ async function getAll(startDate,finishDate) {
         index += 30;
     }
     while(invoiceNumber === 30);
-    processInvoices(invoices)
+    if(typeOfQuery === "delivery") {
+        processInvoicesForDelivery(invoices)
+    } else if(typeOfQuery === "pickup") {
+
+    } else if (typeOfQuery === "load") {
+        processInvoicesForLoad(invoices)
+    }
+}
+
+// funcion para convertir de 24 a 12h
+function from24to12(s) {
+    function z(n){return (n<10?'0':'')+n}
+    var h, m, b, re = /\D/;
+    if (re.test(s)) {
+        b = s.split(re);
+        h = b[0];
+        m = z(+b[1]);
+    } else {
+        h = s.substring(0, s.length - 2);
+        m = s.substring(s.length - 2);
+    }
+    return (h%12 || 12) + ':' + m //+ ' ' + (h>11? 'PM':'AM');
+}
+
+// funcion para convertir de 12 a 24h
+const convertTimeTo24h = timeStr => {
+    const [time, modifier] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') {
+        hours = '00';
+    }
+    if (modifier === 'PM') {
+        hours = parseInt(hours, 10) + 12;
+    }
+    return `${hours}${minutes}`;
+};
+
+// funcion para sacar la hora de las notas
+function transformTime(annotation){
+    let timeMatch = annotation.match(/[0-9]{1,2}:??[0-9]{0,2}\s??(?:am|pm|m)/i)[0]; //8pm or 12m
+    if(/am|pm/i.test(timeMatch)){
+        return from24to12(timeMatch) + " " + timeMatch.slice(timeMatch.search(/am|pm/i)).toUpperCase()
+    }
+    return "12:00 PM"
 }
 
 
+
 // Receives list of invoices
-function processInvoices(invoices){
-    let everyInvoice = [];
+function processInvoicesForDelivery(invoices){
     let deliveryTable = [];
     invoices.forEach(invoice => {
         if(true){ // check status
             if (true) {
-                let elementOfDeliveryTable = [];
-                elementOfDeliveryTable.push(invoice.numberTemplate.fullNumber)
-                elementOfDeliveryTable.push(invoice.client.name)
-                elementOfDeliveryTable.push('8:00 am')
-                elementOfDeliveryTable.push(invoice.totalPaid)
-                elementOfDeliveryTable.push(invoice.total - invoice.totalPaid)
-                elementOfDeliveryTable.push(invoice.total)
-                console.log(elementOfDeliveryTable)
-                document.getElementById("tablaItems").innerHTML += `
-                        <td class="py-3">${invoice.numberTemplate.fullNumber}</td>
-                        <td class="py-3">${invoice.client.name}</td>
-                        <td class="py-3">8:00 am</td>
-                        <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="bg-green-300 rounded-full">$${invoice.totalPaid}</div></td>
-                        <td class="py-3 text-gray-900 w-36"><div class="bg-red-300 rounded-full">$${invoice.total - invoice.totalPaid}</div></td>
-                        <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="bg-orange-300 rounded-full">$${invoice.total}</div></td>
-                        <td class="w-10 text-center">
-                            <input name="plan" type="radio">
-                        </td>
-                        `
-            } 
+                //transformTime(invoice.anotation)
+                let tempTable = [];
+                tempTable.push(invoice.numberTemplate.fullNumber, invoice.client.name.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase()), convertTimeTo24h(transformTime(invoice.anotation)), transformTime(invoice.anotation).split(" ")[1], invoice.totalPaid, (invoice.total - invoice.totalPaid), invoice.total)
+                deliveryTable.push(tempTable)
+                if(invoice.status === "void"){
+                    tempTable[1]
+                    tempTable[1] = "ANULADA - " + tempTable[1].slice(0,10)
+                }
+            }
+        }
+    });
+    deliveryTable.sort((a, b) =>  a[2] - b[2]);
+    deliveryTable.forEach((line) => {
+        document.getElementById("tablaItems").innerHTML += `<tr class="border-b-2">
+                    <td class="py-3">${line[0]}</td>
+                    <td class="py-3 ${(/ANU/.test(line[1])? "text-red-500":"")}">${line[1]}</td>
+                    <td class="py-3">${from24to12(line[2])} ${line[3]}</td>
+                    <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="${(/ANU/.test(line[1])? "bg-gray-300":"bg-green-300")} rounded-full">$${line[4]}</div></td>
+                    <td class="py-3 text-gray-900 w-36"><div class="${(/ANU/.test(line[1])? "bg-gray-300":"bg-red-300")} rounded-full">$${line[5]}</div></td>
+                    <td class="py-3 text-gray-900 w-36 hidden lg:table-cell"><div class="${(/ANU/.test(line[1])? "bg-gray-300":"bg-orange-300")} rounded-full">$${line[6]}</div></td>
+                    <td class="w-10 text-center">
+                        <input name="plan" type="radio">
+                    </td></tr>
+                    `
+    })
+}
+function processInvoicesForLoad(invoices){
+    let everyInvoice = [];
+    invoices.forEach(invoice => {
+        if((invoice.status === 'open'|'closed') && true){ // check status of checkboxes
             let element = [];
             invoice.items.forEach(item => {
-                element = [[ item["name"] , item["quantity"] ]];
-                element = Object.fromEntries(element);
-                //console.log(element)
-                everyInvoice.push(element);
+                if(item["name"] !== "domicilio ida y regreso") {
+                    element = [[ item["name"] + " --- " + item["description"] , item["quantity"] ]];
+                    element = Object.fromEntries(element);
+                    everyInvoice.push(element);
+                }
             });
             console.log(everyInvoice);
         }
@@ -115,4 +169,6 @@ function processInvoices(invoices){
     });
 }
 
-getAll("2022-10-31","2022-10-31");
+let today = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }).slice(0,9)).toISOString().slice(0,10);
+//console.log(today);
+//getAll(today,today); //"2022-10-31"

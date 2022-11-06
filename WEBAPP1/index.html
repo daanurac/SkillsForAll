@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./style.css" rel="stylesheet" type="text/css" />
+    <title>Game</title>
+</head>
+<body>
+    <div class="main"> 
+        <span id='word' class="text-purple-500 text-8xl"></span><br>
+        <button id='command-button' class="btn btn-primary text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">GIVE COMMAND</button><br>  
+        <!-- <p class="commands">Use commands such as 'Move up', 'Move down', 'Move left', 'Move right' .</p>   -->
+        <span id='message' class="text-pink-500 text-8xl"></span>   
+    </div>  
+    <div class="box-container">  
+        <div class="box">  
+        </div>  
+    </div>
+    <br>
+    <div class="w-full bg-gray-200 rounded-full">
+        <div id="progressBar" class="bg-blue-600 text-2xl font-medium text-blue-100 text-center p-3 leading-none rounded-l-full w-1/12"> 25%</div>
+    </div>
+    
+</body>
+<script src="script.js"></script>
+</html>
