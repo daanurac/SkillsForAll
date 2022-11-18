@@ -6,7 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link rel="stylesheet" href="tailwind.css"> -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/flowbite@1.5.3/dist/flowbite.min.css" />
     <!-- <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+        extend: {
+            fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            },
+        }
+        }
+    }
+    </script>
     <title>ZU - Panel de Control</title>
 </head>
 <body>
@@ -30,34 +46,78 @@
                 <div class="flex flex-col text-center w-full mb-2">
                     <h1 class="sm:text-4xl text-3xl font-medium title-font text-gray-900">Carga</h1>
                 </div>
-                <div class=" w-full mx-auto overflow-auto">
-                    <table class="table-auto w-full text-center whitespace-no-wrap">
-                    <thead >
-                        <tr class="bg-gray-100 title-font tracking-wider text-sm text-gray-900">
-                        <th class="px-4 py-3 font-medium rounded-tl rounded-bl">Cantidad</th>
-                        <th class="px-4 py-3 font-medium">Articulo</th>
-                        <th class="px-4 py-3 font-medium">Descripcion</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-md md:text-2xl" id="tablaItems">
-                        <tr>
-                        <td class="py-3">455</td>
-                        <td class="py-3">sillas plasticas</td>
-                        <td class="py-3">blancas sin brazo</td>
-                        </tr>
-                        
-                    </tbody>
-                    </table>
+                <div class="relative flex flex-row">
+                    <div class=" w-10/12 mx-auto overflow-auto">
+                        <table class="table-auto w-full text-center whitespace-no-wrap">
+                        <thead >
+                            <tr class="bg-gray-100 title-font tracking-wider text-sm text-gray-900">
+                            <th class="px-4 py-3 font-medium rounded-tl rounded-bl">Cantidad</th>
+                            <th class="px-4 py-3 font-medium">Articulo</th>
+                            <th class="px-4 py-3 font-medium">Descripcion</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-md md:text-2xl" id="tablaItemsCarga">
+                            <!-- <tr>
+                            <td class="py-3">455</td>
+                            <td class="py-3">sillas plasticas</td>
+                            <td class="py-3">blancas sin brazo</td>
+                            </tr> -->
+                            
+                        </tbody>
+                        </table>
+                    </div>
+                    <div class="absolute right-0 -top-11 md:top-0 w-auto mx-auto overflow-auto bg-white rounded-lg border-slate-800 border-4">
+                        <div class="w-full text-right p-1 md:p-2 bg-slate-800 text-white"><button class="mx-4" onclick="loadFilters()">Filtros</button></div>
+                        <div id="date-filter" date-rangepicker="" datepicker-format="yyyy-mm-dd" class="flex items-center w-96 hidden">
+                            <div class="relative">
+                              <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                                  <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                              </div>
+                              <input id="start-date" name="start" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-md md:text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 datepicker-input" placeholder="Fecha inicial">
+                            </div>
+                            <span class="mx-4 text-gray-500">al</span>
+                            <div class="relative">
+                              <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                                  <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                              </div>
+                              <input id="end-date" name="end" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-md md:text-xl rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 datepicker-input" placeholder="Fecha final">
+                          </div>
+                        </div>
+                        <table id="invoice-filter" class="table-auto w-full text-center whitespace-no-wrap w-96 hidden">
+                            <thead >
+                                <tr class="bg-indigo-100 title-font tracking-wider text-sm text-gray-900">
+                                <th class="px-4 py-3 font-medium rounded-tl rounded-bl"></th>
+                                <th class="px-4 py-3 font-medium">Todos</th>
+                                <th class="px-4 py-3 font-medium">
+                                    <input id="checkboxAll" type="checkbox" value="checkboxAll" checked="checked" />
+                                </th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-md md:text-2xl" id="tablaFacturasCarga">
+                                <!-- <tr>
+                                <td class="py-3">455</td>
+                                <td class="py-3">sillas plasticas</td>
+                                <td class="py-3">
+                                    <input id="first" type="checkbox" value="001" />
+                                </td>
+                                </tr> -->
+                                
+                            </tbody>
+                        </table>
+                        <button id="button-filter" class="mx-4 hidden" onclick="getAgain()">Filtrar</button>
+                    </div>
                 </div>
-                <div class="flex pl-4 mt-4 xl:w-2/3 w-full mx-auto">
+                <!-- <div class="flex pl-4 mt-4 xl:w-2/3 w-full mx-auto">
                     <button class="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">Enviar</button>
-                </div>
+                </div> -->
             </div>
         </section>
     </main>
     <footer>
 
     </footer>
+    <script src="https://unpkg.com/flowbite@1.5.3/dist/flowbite.js"></script>
+      <script src="https://unpkg.com/flowbite@1.5.3/dist/datepicker.js"></script>
 </body>
 <script src="script.js"></script>
 <script>getAll(today,today,'load');</script>

@@ -7,6 +7,7 @@ var requestOptions = {
     redirect: 'follow'
 };
 
+let today = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }).slice(0,10)).toISOString().slice(0,10);
 
 //MAIN fetch function to GetInvoices
 async function getInvoices(startDate,finishDate,index) {
@@ -15,6 +16,8 @@ async function getInvoices(startDate,finishDate,index) {
     let objectWithListOfInvoices = await apiFetch.json();
     return(objectWithListOfInvoices);
     }
+
+//async function getItemsFromCombo
 
 async function getAll(startDate,finishDate,typeOfQuery) {
     let index = 0;
@@ -72,6 +75,28 @@ function transformTime(annotation){
     return "12:00 PM"
 }
 
+// funcion para mostrar menu de filtros en pag de carga.
+function loadFilters() {
+    console.log(document.getElementById("invoice-filter").classList.contains("hidden"))
+    if(document.getElementById("invoice-filter").classList.contains("hidden")){
+        document.getElementById("date-filter").classList.remove("hidden")
+        document.getElementById("invoice-filter").classList.remove("hidden")
+        document.getElementById("button-filter").classList.remove("hidden")
+        //console.log("toggle")
+    } else{
+        document.getElementById("date-filter").classList.add("hidden")
+        document.getElementById("invoice-filter").classList.add("hidden")
+        document.getElementById("button-filter").classList.add("hidden")
+    }
+    //document.getElementById("invoice-filter")
+}
+
+// funcion para aplicar filtro de fechas
+function getAgain(){
+    document.getElementById("tablaFacturasCarga").innerHTML = ''
+    document.getElementById("tablaItemsCarga").innerHTML = ''
+    getAll(document.getElementById("start-date").value, document.getElementById("end-date").value, 'load')
+}
 
 
 // Receives list of invoices
@@ -108,19 +133,48 @@ function processInvoicesForDelivery(invoices){
 }
 function processInvoicesForLoad(invoices){
     let everyInvoice = [];
+    let invoiceList = [];
     invoices.forEach(invoice => {
-        if((invoice.status === 'open'|'closed') && true){ // check status of checkboxes
-            let element = [];
-            invoice.items.forEach(item => {
-                if(item["name"] !== "domicilio ida y regreso") {
-                    element = [[ item["name"] + " --- " + item["description"] , item["quantity"] ]];
-                    element = Object.fromEntries(element);
-                    everyInvoice.push(element);
-                }
-            });
-            console.log(everyInvoice);
-        }
-    });
+        //primero se arma la lista de facturas
+        let tempTable = [];
+            tempTable.push(invoice.numberTemplate.fullNumber, convertTimeTo24h(transformTime(invoice.anotation)), transformTime(invoice.anotation).split(" ")[1])
+            invoiceList.push(tempTable)
+        })
+    invoiceList.sort((a, b) =>  a[1] - b[1]);
+    invoiceList.forEach((line) => {
+    document.getElementById("tablaFacturasCarga").innerHTML += `<tr class="border-2">
+        <td class="py-3">${from24to12(line[1])} ${line[2]}</td>
+        <td class="py-3">${line[0]}</td>
+        <td class="py-3">
+            <input id="${line[0]}" type="checkbox" value="${line[0]}" checked="checked" />
+        </td>
+    </tr>
+    `})
+
+    function fillTableforLoad() {
+        invoices.forEach(invoice => {
+            //console.log(invoice)
+            //console.log(document.getElementById(invoice.numberTemplate.fullNumber).checked)
+            if(((invoice.status === 'open')|(invoice.status === 'closed')) && document.getElementById(invoice.numberTemplate.fullNumber).checked){ // check status of checkboxes
+                let element = [];
+                invoice.items.forEach(item => {
+                    if(item["id"] === 906){
+                        console.log("combo")
+                    } else
+                    if(item["name"] !== "domicilio ida y regreso") {
+                        if(item["description"] === null){
+                            item["description"] = ""
+                        }
+                        element = [[ item["name"] + " --- " + item["description"] , item["quantity"] ]];
+                        element = Object.fromEntries(element);
+                        everyInvoice.push(element);
+                    }
+                });
+                //console.log(everyInvoice);
+            }
+        });
+    }
+    fillTableforLoad()
 
     // groupArray function, receives an array (list) of key:values (name:quantity)
     // Example: [ { 'ItemA': 20 }, { 'ItemB': 1 }, { 'ItemA': 30 }, { 'ItemB': 1 } ]
@@ -146,29 +200,60 @@ function processInvoicesForLoad(invoices){
     // here it ends the groupArray function
 
     let allInvoices = groupArray(everyInvoice);
-    console.log(allInvoices)
-    everyInvoice = [];
-    allInvoices.forEach(item => {
-        let nameofProduct = Object.keys(item)[0];
-        async function addItemToTable(name){
-            //let productObject = await getProduct(name);  // Get products from API (unnecessary)
-            //console.log(productObject[0].price[0].price)
-            //let quantity = Object.values(item)[0];
-            //let price = productObject[0].price[0].price*1;
-            console.log(productObject[0].description) 
-            element = [[ "name" , name ],[ "quantity" , Object.values(item)[0] ], [ "price", productObject[0].price[0].price*1 ]];
-            element = Object.fromEntries(element);
-            
-            //console.log(element)
-            //document.getElementById("tablaItems").innerHTML += "<tr><td>" + name + "</td><td>" + quantity + "</td><td>" + price + "</td></tr>";
+    function fillProductsforLoad() {
+        allInvoices.forEach((line) => {
+            //console.log(Object.values(line)[0])
+            nameDescSplit = Object.entries(line)[0][0].split("---")
+            //console.log(nameDescSplit)
+            document.getElementById("tablaItemsCarga").innerHTML += `<tr class="border-b-2">
+                <td class="py-3">${Object.values(line)[0]}</td>
+                <td class="py-3">${nameDescSplit[0]}</td>
+                <td class="py-3">${nameDescSplit[1]}</td>
+            </tr>
+            `})
+    }
+    //console.log(allInvoices)
+    fillProductsforLoad()
 
-            everyInvoice.push(element);
-            console.log(everyInvoice)
-        }
-        //addItemToTable(nameofProduct)
+
+    // Event Listeners for checkboxes
+    var allCheckBoxes = document.querySelectorAll('[type="checkbox"]');
+    [].forEach.call(allCheckBoxes, function (checkBoxClicked) {
+        checkBoxClicked.addEventListener("click", function(){
+            console.log(checkBoxClicked.id)
+            if(checkBoxClicked.id === "checkboxAll"){
+                if (checkBoxClicked.checked == true){
+                    allCheckBoxes.forEach(checkBox =>{
+                        checkBox.checked = true
+                    })
+                } else {
+                    allCheckBoxes.forEach(checkBox =>{
+                        checkBox.checked = false
+                    })
+                }
+            } else {
+                var allCheckBoxesChecked = true
+                allCheckBoxes.forEach(checkBox =>{
+                    if(checkBox.id !== "checkboxAll" && checkBox.checked == false){
+                        allCheckBoxesChecked = false
+                    }
+                })
+                if (checkBoxClicked.checked == true && allCheckBoxesChecked == true){
+                    document.getElementById("checkboxAll").checked = true
+                } else {
+                    document.getElementById("checkboxAll").checked = false
+                }
+            } 
+            everyInvoice = []
+            fillTableforLoad()
+            allInvoices = groupArray(everyInvoice);
+            //console.log(allInvoices)
+            document.getElementById("tablaItemsCarga").innerHTML = ""
+            fillProductsforLoad()
+        });
     });
 }
 
-let today = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' }).slice(0,9)).toISOString().slice(0,10);
+
 //console.log(today);
 //getAll(today,today); //"2022-10-31"
